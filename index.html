@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>🚀 Mon Portail</title>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js">
+    </script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
     <style>
@@ -27,8 +34,6 @@
             --purple: #8b5cf6;
             --pink: #ec4899;
             --green: #22c55e;
-            --orange: #f59e0b;
-            --red: #ef4444;
             --radius: 16px;
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -38,9 +43,7 @@
             background: var(--bg);
             color: var(--text);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 30px 20px;
             background-image: url('background-portail.jpg');
             background-size: cover;
             background-position: center;
@@ -55,7 +58,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.88);
             z-index: 0;
             pointer-events: none;
         }
@@ -63,88 +66,52 @@
         .container {
             position: relative;
             z-index: 1;
-            width: 100%;
             max-width: 1200px;
-            padding: 20px;
+            margin: 0 auto;
+        }
+
+        /* ───────────── LOADING ───────────── */
+        #loadingScreen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        #loadingScreen .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #loadingScreen p {
+            color: var(--text2);
+            font-size: 16px;
         }
 
         /* ───────────── ENTRY SCREEN ───────────── */
         #entryScreen {
-            display: flex;
+            display: none;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 80vh;
             text-align: center;
-        }
-
-        #entryScreen .logo {
-            font-size: 80px;
-            margin-bottom: 20px;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-15px);
-            }
-        }
-
-        #entryScreen h1 {
-            font-size: 48px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary-light), var(--purple), var(--pink));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 8px;
-        }
-
-        #entryScreen p {
-            color: var(--text2);
-            font-size: 18px;
-            margin-bottom: 40px;
-        }
-
-        #entryScreen .enter-btn {
-            padding: 16px 60px;
-            font-size: 20px;
-            font-weight: 600;
-            border: none;
-            border-radius: 60px;
-            background: linear-gradient(135deg, var(--primary), var(--purple));
-            color: white;
-            cursor: pointer;
-            transition: all var(--transition);
-            box-shadow: 0 4px 24px rgba(59, 130, 246, 0.3);
-        }
-
-        #entryScreen .enter-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 40px rgba(59, 130, 246, 0.5);
-        }
-
-        #entryScreen .enter-btn i {
-            margin-left: 10px;
-            transition: transform var(--transition);
-        }
-
-        #entryScreen .enter-btn:hover i {
-            transform: translateX(6px);
-        }
-
-        /* ───────────── HUB SCREEN ───────────── */
-        #hubScreen {
-            display: none;
+            padding: 40px 20px;
             animation: fadeIn 0.6s ease;
         }
 
-        #hubScreen.active {
-            display: block;
+        #entryScreen.active {
+            display: flex;
         }
 
         @keyframes fadeIn {
@@ -158,14 +125,169 @@
             }
         }
 
-        /* Header */
+        .profile-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 40px 36px;
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .profile-card .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary);
+            margin-bottom: 16px;
+            background: var(--bg);
+        }
+
+        .profile-card .avatar-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid var(--primary);
+            margin: 0 auto 16px;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: var(--text2);
+        }
+
+        .profile-card .name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .profile-card .title {
+            color: var(--primary-light);
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        .profile-card .info-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            color: var(--text2);
+            font-size: 15px;
+            justify-content: center;
+        }
+
+        .profile-card .info-item i {
+            width: 20px;
+            color: var(--primary-light);
+        }
+
+        .profile-card .info-item a {
+            color: var(--text2);
+            text-decoration: none;
+            transition: color var(--transition);
+        }
+
+        .profile-card .info-item a:hover {
+            color: var(--primary-light);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            font-size: 20px;
+            transition: all var(--transition);
+            text-decoration: none;
+        }
+
+        .social-links a:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            color: var(--primary-light);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+        }
+
+        .social-links a.instagram:hover {
+            border-color: #e4405f;
+            color: #e4405f;
+        }
+
+        .social-links a.linkedin:hover {
+            border-color: #0a66c2;
+            color: #0a66c2;
+        }
+
+        .social-links a.github:hover {
+            border-color: #fff;
+            color: #fff;
+        }
+
+        .enter-btn {
+            margin-top: 20px;
+            padding: 14px 48px;
+            font-size: 18px;
+            font-weight: 600;
+            border: none;
+            border-radius: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            color: white;
+            cursor: pointer;
+            transition: all var(--transition);
+            box-shadow: 0 4px 24px rgba(59, 130, 246, 0.3);
+            width: 100%;
+        }
+
+        .enter-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 40px rgba(59, 130, 246, 0.5);
+        }
+
+        .enter-btn i {
+            margin-left: 10px;
+            transition: transform var(--transition);
+        }
+
+        .enter-btn:hover i {
+            transform: translateX(6px);
+        }
+
+        /* ───────────── HUB ───────────── */
+        #hubScreen {
+            display: none;
+            animation: fadeIn 0.6s ease;
+        }
+
+        #hubScreen.active {
+            display: block;
+        }
+
         .hub-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 16px;
-            margin-bottom: 32px;
+            margin-bottom: 28px;
             padding-bottom: 16px;
             border-bottom: 1px solid var(--border);
         }
@@ -176,13 +298,13 @@
             gap: 12px;
         }
 
-        .hub-header .title h2 {
+        .hub-header .title h1 {
             font-size: 28px;
-            font-weight: 600;
-        }
-
-        .hub-header .title h2 span {
-            color: var(--primary-light);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light), var(--purple), var(--pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .hub-header .title i {
@@ -190,112 +312,137 @@
             color: var(--primary-light);
         }
 
-        .hub-header .back-btn {
-            padding: 10px 24px;
-            border: 1px solid var(--border);
-            border-radius: 40px;
-            background: transparent;
-            color: var(--text2);
-            cursor: pointer;
-            transition: all var(--transition);
-            font-size: 14px;
-            font-weight: 500;
+        .hub-header .header-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
-        .hub-header .back-btn:hover {
+        .hub-header .header-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            color: white;
+        }
+
+        .btn-add:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-back {
+            background: transparent;
+            color: var(--text2);
+            border: 1px solid var(--border);
+        }
+
+        .btn-back:hover {
             background: var(--card);
             color: var(--text);
             border-color: var(--primary);
         }
 
-        /* Stats */
-        .hub-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 16px;
-            margin-bottom: 32px;
-        }
-
-        .stat-card {
-            background: var(--card);
-            border-radius: var(--radius);
-            padding: 16px 20px;
+        .btn-reset {
+            background: transparent;
+            color: var(--text2);
             border: 1px solid var(--border);
-            text-align: center;
-            transition: all var(--transition);
         }
 
-        .stat-card:hover {
-            border-color: var(--primary);
+        .btn-reset:hover {
+            background: var(--red);
+            color: white;
+            border-color: var(--red);
         }
 
-        .stat-card .number {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--primary-light);
-        }
-
-        .stat-card .label {
+        .sync-status {
             font-size: 12px;
             color: var(--text2);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 2px;
-        }
-
-        /* Categories */
-        .category-section {
-            margin-bottom: 32px;
-        }
-
-        .category-section .cat-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 16px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
         }
 
-        .category-section .cat-title i {
-            color: var(--primary-light);
+        .sync-status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
         }
 
-        .category-section .cat-title .count {
-            font-size: 12px;
-            font-weight: 400;
+        .sync-status .dot.online {
+            background: var(--green);
+        }
+        .sync-status .dot.syncing {
+            background: var(--orange);
+            animation: pulse 0.8s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        /* ───────────── STATS ───────────── */
+        .stats {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .stats .stat-item {
+            font-size: 14px;
             color: var(--text2);
-            background: var(--card);
-            padding: 2px 12px;
-            border-radius: 40px;
         }
 
-        /* ───────────── GRID CARDS ───────────── */
-        .card-grid {
+        .stats .stat-item strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        /* ───────────── GRID ───────────── */
+        .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
             gap: 20px;
         }
 
-        .card-link {
+        .card {
             background: var(--card);
             border-radius: var(--radius);
-            padding: 24px 20px;
             border: 1px solid var(--border);
             cursor: pointer;
-            text-decoration: none;
-            color: var(--text);
             transition: all var(--transition);
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             text-align: center;
-            gap: 12px;
+            padding: 20px 16px;
+            min-height: 160px;
             position: relative;
             overflow: hidden;
+            text-decoration: none;
+            color: var(--text);
         }
 
-        .card-link::before {
+        .card::before {
             content: '';
             position: absolute;
             top: 0;
@@ -308,108 +455,125 @@
             border-radius: var(--radius);
         }
 
-        .card-link:hover {
+        .card:hover {
             transform: translateY(-6px);
             border-color: var(--primary);
             box-shadow: 0 12px 40px rgba(59, 130, 246, 0.15);
         }
 
-        .card-link:hover::before {
+        .card:hover::before {
             opacity: 0.08;
         }
 
-        .card-link .icon {
-            font-size: 40px;
+        .card .image {
+            width: 72px;
+            height: 72px;
+            border-radius: 12px;
+            object-fit: cover;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            position: relative;
+            z-index: 1;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
             color: var(--primary-light);
-            position: relative;
-            z-index: 1;
+            transition: all var(--transition);
+            overflow: hidden;
         }
 
-        .card-link .name {
+        .card:hover .image {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .card .image img {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .card .name {
             font-weight: 600;
-            font-size: 16px;
+            font-size: 14px;
             position: relative;
             z-index: 1;
+            line-height: 1.3;
         }
 
-        .card-link .desc {
-            font-size: 13px;
+        .card .url-hint {
+            font-size: 11px;
             color: var(--text2);
             position: relative;
             z-index: 1;
+            margin-top: 4px;
+            word-break: break-all;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        .card-link .badge {
+        .card .delete-btn {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            font-size: 10px;
-            padding: 2px 10px;
-            border-radius: 40px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            z-index: 1;
-        }
-
-        .badge.primary {
-            background: rgba(59, 130, 246, 0.2);
-            color: var(--primary-light);
-        }
-
-        .badge.green {
-            background: rgba(34, 197, 94, 0.2);
-            color: var(--green);
-        }
-
-        .badge.purple {
-            background: rgba(139, 92, 246, 0.2);
-            color: var(--purple);
-        }
-
-        .badge.pink {
-            background: rgba(236, 72, 153, 0.2);
-            color: var(--pink);
-        }
-
-        .badge.orange {
-            background: rgba(245, 158, 11, 0.2);
-            color: var(--orange);
-        }
-
-        .badge.red {
-            background: rgba(239, 68, 68, 0.2);
+            top: 8px;
+            right: 8px;
+            z-index: 2;
+            background: rgba(239, 68, 68, 0.15);
+            border: none;
             color: var(--red);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all var(--transition);
         }
 
-        /* ───────────── ADD CARD BUTTON ───────────── */
-        .add-card {
+        .card:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .card .delete-btn:hover {
+            background: var(--red);
+            color: white;
+        }
+
+        /* ───────────── ADD CARD ───────────── */
+        .card-add {
             background: transparent;
             border: 2px dashed var(--border);
             border-radius: var(--radius);
-            padding: 24px 20px;
             cursor: pointer;
             transition: all var(--transition);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            min-height: 160px;
             gap: 8px;
             color: var(--text2);
-            min-height: 140px;
         }
 
-        .add-card:hover {
+        .card-add:hover {
             border-color: var(--primary);
             color: var(--primary-light);
             background: rgba(59, 130, 246, 0.05);
+            transform: translateY(-6px);
         }
 
-        .add-card i {
-            font-size: 32px;
+        .card-add i {
+            font-size: 36px;
         }
 
-        .add-card span {
+        .card-add span {
             font-size: 14px;
             font-weight: 500;
         }
@@ -421,7 +585,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(8px);
             display: none;
             align-items: center;
@@ -442,6 +606,8 @@
             width: 100%;
             border: 1px solid var(--border);
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-content h2 {
@@ -462,8 +628,16 @@
             margin-bottom: 20px;
         }
 
-        .modal-content input,
-        .modal-content select {
+        .modal-content label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text2);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .modal-content input[type="text"],
+        .modal-content input[type="url"] {
             width: 100%;
             padding: 12px 16px;
             border: 2px solid var(--border);
@@ -471,14 +645,76 @@
             background: var(--bg);
             color: var(--text);
             font-size: 15px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
             transition: border var(--transition);
         }
 
-        .modal-content input:focus,
-        .modal-content select:focus {
+        .modal-content input:focus {
             outline: none;
             border-color: var(--primary);
+        }
+
+        .modal-content .image-upload {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .modal-content .image-upload .preview {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: var(--text2);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .modal-content .image-upload .preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .modal-content .image-upload .upload-btn {
+            padding: 8px 16px;
+            background: var(--border);
+            border: none;
+            border-radius: 40px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all var(--transition);
+        }
+
+        .modal-content .image-upload .upload-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .modal-content .image-upload .remove-img {
+            padding: 8px 12px;
+            background: transparent;
+            border: 1px solid var(--red);
+            border-radius: 40px;
+            color: var(--red);
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all var(--transition);
+        }
+
+        .modal-content .image-upload .remove-img:hover {
+            background: var(--red);
+            color: white;
         }
 
         .modal-content .modal-buttons {
@@ -518,46 +754,22 @@
             box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
         }
 
-        /* ───────────── RESPONSIVE ───────────── */
-        @media (max-width: 600px) {
-            #entryScreen h1 {
-                font-size: 32px;
-            }
-            #entryScreen .logo {
-                font-size: 56px;
-            }
-            .hub-header .title h2 {
-                font-size: 20px;
-            }
-            .card-grid {
-                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-                gap: 14px;
-            }
-            .card-link {
-                padding: 18px 16px;
-            }
-            .card-link .icon {
-                font-size: 30px;
-            }
-            .modal-content {
-                padding: 24px 20px;
-            }
+        /* ───────────── EMPTY STATE ───────────── */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text2);
         }
 
-        @media (max-width: 400px) {
-            .card-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-            .card-link {
-                padding: 14px 12px;
-            }
-            .card-link .name {
-                font-size: 13px;
-            }
-            .card-link .desc {
-                font-size: 11px;
-            }
+        .empty-state i {
+            font-size: 56px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .empty-state p {
+            font-size: 18px;
         }
 
         /* ───────────── TOAST ───────────── */
@@ -592,22 +804,77 @@
             display: none;
         }
 
-        /* ───────────── EMPTY STATE ───────────── */
-        .empty-state {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text2);
+        /* ───────────── RESPONSIVE ───────────── */
+        @media (max-width: 600px) {
+            body {
+                padding: 16px 12px;
+            }
+            .profile-card {
+                padding: 28px 20px;
+            }
+            .profile-card .avatar {
+                width: 90px;
+                height: 90px;
+            }
+            .profile-card .name {
+                font-size: 22px;
+            }
+            .hub-header .title h1 {
+                font-size: 22px;
+            }
+            .hub-header .header-actions button {
+                padding: 8px 14px;
+                font-size: 12px;
+            }
+            .grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                gap: 14px;
+            }
+            .card {
+                padding: 16px 12px;
+                min-height: 140px;
+            }
+            .card .image {
+                width: 56px;
+                height: 56px;
+                font-size: 24px;
+            }
+            .card .name {
+                font-size: 13px;
+            }
+            .card-add {
+                min-height: 140px;
+            }
+            .modal-content {
+                padding: 24px 20px;
+            }
+            .social-links a {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
         }
 
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 12px;
-            opacity: 0.3;
-        }
-
-        .empty-state p {
-            font-size: 16px;
+        @media (max-width: 400px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .card {
+                min-height: 120px;
+                padding: 12px 10px;
+            }
+            .card .image {
+                width: 48px;
+                height: 48px;
+                font-size: 20px;
+            }
+            .card .name {
+                font-size: 12px;
+            }
+            .card-add {
+                min-height: 120px;
+            }
         }
     </style>
 </head>
@@ -615,48 +882,86 @@
 
     <div class="container">
 
-        <!-- ═══════════ ENTRY SCREEN ═══════════ -->
-        <div id="entryScreen">
-            <div class="logo">🚀</div>
-            <h1>Mon Portail</h1>
-            <p>Tous mes outils et sites réunis en un seul endroit</p>
-            <button class="enter-btn" onclick="enterHub()">
-                Entrer <i class="fas fa-arrow-right"></i>
-            </button>
+        <!-- ═══════════ LOADING ═══════════ -->
+        <div id="loadingScreen">
+            <div class="spinner"></div>
+            <p>⏳ Chargement...</p>
         </div>
 
-        <!-- ═══════════ HUB SCREEN ═══════════ -->
+        <!-- ═══════════ ENTRY SCREEN ═══════════ -->
+        <div id="entryScreen">
+            <div class="profile-card">
+                <!-- Photo de profil -->
+                <div class="avatar-placeholder" id="avatarContainer">
+                    <i class="fas fa-user"></i>
+                </div>
+
+                <div class="name">Hamza Margal</div>
+                <div class="title">🚀 Développeur & Créateur</div>
+
+                <!-- Informations -->
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <span>06 31 90 91 30</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-envelope"></i>
+                    <a href="mailto:hamzamp2026@gmail.com">hamzamp2026@gmail.com</a>
+                </div>
+
+                <!-- Réseaux sociaux -->
+                <div class="social-links">
+                    <a href="https://www.instagram.com/hamza_margal/" target="_blank" class="instagram" title="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/hamza-margal-4ba9592b4/" target="_blank" class="linkedin" title="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://github.com/hamza-tuncay23" target="_blank" class="github" title="GitHub">
+                        <i class="fab fa-github"></i>
+                    </a>
+                </div>
+
+                <!-- Bouton Entrer -->
+                <button class="enter-btn" onclick="enterHub()">
+                    Entrer dans mon espace <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ═══════════ HUB ═══════════ -->
         <div id="hubScreen">
 
             <!-- Header -->
             <header class="hub-header">
                 <div class="title">
                     <i class="fas fa-th-large"></i>
-                    <h2>Mon <span>Hub</span></h2>
+                    <h1>Mes Sites</h1>
                 </div>
-                <button class="back-btn" onclick="exitHub()">
-                    <i class="fas fa-arrow-left"></i> Retour
-                </button>
+                <div class="header-actions">
+                    <span class="sync-status">
+                        <span class="dot" id="syncDot"></span>
+                        <span id="syncText">Synced</span>
+                    </span>
+                    <button class="btn-add" onclick="openModal()">
+                        <i class="fas fa-plus"></i> Ajouter
+                    </button>
+                    <button class="btn-back" onclick="exitHub()">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </button>
+                    <button class="btn-reset" onclick="resetAll()">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
             </header>
 
             <!-- Stats -->
-            <div class="hub-stats" id="hubStats">
-                <div class="stat-card">
-                    <div class="number" id="totalSites">0</div>
-                    <div class="label">Sites</div>
-                </div>
-                <div class="stat-card">
-                    <div class="number" id="totalCategories">0</div>
-                    <div class="label">Catégories</div>
-                </div>
-                <div class="stat-card">
-                    <div class="number" id="totalVisits">0</div>
-                    <div class="label">Visites</div>
-                </div>
+            <div class="stats">
+                <span class="stat-item">📦 <strong id="totalSites">0</strong> sites</span>
             </div>
 
-            <!-- Categories & Cards -->
-            <div id="hubContent"></div>
+            <!-- Grid -->
+            <div class="grid" id="gridContainer"></div>
 
         </div>
 
@@ -668,31 +973,25 @@
             <h2><i class="fas fa-plus-circle"></i> Ajouter un site</h2>
             <p class="sub">Ajoute un nouveau lien vers l'un de tes outils</p>
 
-            <input type="text" id="modalName" placeholder="Nom du site" />
-            <input type="text" id="modalUrl" placeholder="URL (ex: https://...)" />
-            <select id="modalCategory">
-                <option value="Principaux">⭐ Principaux</option>
-                <option value="Outils">🛠️ Outils</option>
-                <option value="IA">🤖 IA</option>
-                <option value="Réseaux">🌐 Réseaux</option>
-                <option value="Travail">💼 Travail</option>
-                <option value="Divertissement">🎮 Divertissement</option>
-                <option value="Autre">📁 Autre</option>
-            </select>
-            <select id="modalIcon">
-                <option value="fa-globe">🌍 Globe</option>
-                <option value="fa-code">💻 Code</option>
-                <option value="fa-brain">🧠 IA</option>
-                <option value="fa-shopping-cart">🛒 Shopping</option>
-                <option value="fa-video">🎬 Vidéo</option>
-                <option value="fa-music">🎵 Musique</option>
-                <option value="fa-book">📚 Livre</option>
-                <option value="fa-cog">⚙️ Outil</option>
-                <option value="fa-chart-line">📊 Stats</option>
-                <option value="fa-envelope">📧 Email</option>
-                <option value="fa-calendar">📅 Calendrier</option>
-                <option value="fa-star">⭐ Favori</option>
-            </select>
+            <label>Nom du site</label>
+            <input type="text" id="modalName" placeholder="Ex: Smart Budget" />
+
+            <label>URL</label>
+            <input type="url" id="modalUrl" placeholder="https://exemple.com" />
+
+            <label>Image (optionnel)</label>
+            <div class="image-upload">
+                <div class="preview" id="imagePreview">
+                    <i class="fas fa-image"></i>
+                </div>
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-upload"></i> Choisir une image
+                </button>
+                <button class="remove-img" onclick="removeImage()">
+                    <i class="fas fa-times"></i> Supprimer
+                </button>
+                <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="handleImageUpload(event)" />
+            </div>
 
             <div class="modal-buttons">
                 <button class="btn-cancel" onclick="closeModal()">Annuler</button>
@@ -709,165 +1008,270 @@
     <!-- ──────────────────────────────────────────────── -->
 
     <script>
-        // ──────────────── DATA ────────────────
+        // ═══════════════════════════════════════════════════
+        //  🔥 FIREBASE CONFIG
+        // ═══════════════════════════════════════════════════
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBeSa90G5b_fl9HoNiDQhUJSyS_4n3x5o0",
+            authDomain: "smart-budget-55f99.firebaseapp.com",
+            projectId: "smart-budget-55f99",
+            storageBucket: "smart-budget-55f99.firebasestorage.app",
+            messagingSenderId: "386991773547",
+            appId: "1:386991773547:web:9e335b919e448f2dcfde2e",
+            measurementId: "G-M6HT37LGFK"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Activer la persistance hors ligne
+        db.enablePersistence({ synchronizeTabs: true })
+            .then(() => console.log('🔥 Offline persistence enabled'))
+            .catch(err => console.warn('Persistence error:', err));
+
+        // ──────────────── STATE ────────────────
         let sites = [];
-        let visitCount = 0;
+        let imageData = null;
+        let isSyncing = false;
+        const DOC_ID = 'portail_data';
 
-        // ──────────────── LOAD / SAVE ────────────────
-        function loadData() {
-            const saved = localStorage.getItem('portailSites');
-            if (saved) {
-                try {
-                    sites = JSON.parse(saved);
-                } catch (e) {
-                    sites = [];
-                }
+        // ──────────────── LOADING ────────────────
+        function showLoading(show) {
+            document.getElementById('loadingScreen').style.display = show ? 'flex' : 'none';
+        }
+
+        // ──────────────── SYNC STATUS ────────────────
+        function updateSyncStatus(status) {
+            const dot = document.getElementById('syncDot');
+            const text = document.getElementById('syncText');
+            dot.className = 'dot';
+            if (status === 'online') {
+                dot.classList.add('online');
+                text.textContent = 'Synced';
+            } else if (status === 'syncing') {
+                dot.classList.add('syncing');
+                text.textContent = 'Syncing...';
             } else {
-                // Sites par défaut
-                sites = [
-                    { name: 'Smart Budget', url: 'https://hamza-tuncay23.github.io/Budget/', category: 'Principaux',
-                        icon: 'fa-wallet' },
-                    { name: 'GitHub', url: 'https://github.com/hamza-tuncay23', category: 'Outils', icon: 'fa-github' },
-                    { name: 'ChatGPT', url: 'https://chatgpt.com', category: 'IA', icon: 'fa-robot' },
-                    { name: 'YouTube', url: 'https://youtube.com', category: 'Divertissement', icon: 'fa-youtube' },
-                    { name: 'Gmail', url: 'https://gmail.com', category: 'Réseaux', icon: 'fa-envelope' },
-                ];
+                text.textContent = 'Offline';
             }
-            const visits = localStorage.getItem('portailVisits');
-            if (visits) {
-                try {
-                    visitCount = parseInt(visits) || 0;
-                } catch (e) {
-                    visitCount = 0;
+        }
+
+        // ──────────────── LOAD / SAVE FROM FIREBASE ────────────────
+        async function loadFromFirebase() {
+            try {
+                updateSyncStatus('syncing');
+                const doc = await db.collection('portail').doc(DOC_ID).get();
+
+                if (doc.exists) {
+                    const data = doc.data();
+                    sites = data.sites || [];
+                    // Mettre à jour le localStorage pour le cache
+                    localStorage.setItem('portailSites', JSON.stringify(sites));
+                } else {
+                    // Premier lancement : données par défaut
+                    sites = [
+                        { name: 'Smart Budget', url: 'https://hamza-tuncay23.github.io/Budget/' },
+                        { name: 'GitHub', url: 'https://github.com/hamza-tuncay23' },
+                        { name: 'ChatGPT', url: 'https://chatgpt.com' },
+                        { name: 'YouTube', url: 'https://youtube.com' },
+                        { name: 'Gmail', url: 'https://gmail.com' },
+                    ];
+                    await saveToFirebase();
                 }
+
+                updateSyncStatus('online');
+                renderGrid();
+                showLoading(false);
+                document.getElementById('entryScreen').classList.add('active');
+
+            } catch (err) {
+                console.warn('Firebase load error:', err);
+                // Utiliser le cache local
+                const cached = localStorage.getItem('portailSites');
+                if (cached) {
+                    try {
+                        sites = JSON.parse(cached);
+                    } catch (e) {
+                        sites = [];
+                    }
+                } else {
+                    sites = [
+                        { name: 'Smart Budget', url: 'https://hamza-tuncay23.github.io/Budget/' },
+                        { name: 'GitHub', url: 'https://github.com/hamza-tuncay23' },
+                        { name: 'ChatGPT', url: 'https://chatgpt.com' },
+                        { name: 'YouTube', url: 'https://youtube.com' },
+                        { name: 'Gmail', url: 'https://gmail.com' },
+                    ];
+                }
+                updateSyncStatus('offline');
+                renderGrid();
+                showLoading(false);
+                document.getElementById('entryScreen').classList.add('active');
             }
-            renderHub();
         }
 
-        function saveData() {
-            localStorage.setItem('portailSites', JSON.stringify(sites));
-            localStorage.setItem('portailVisits', String(visitCount));
+        async function saveToFirebase() {
+            if (isSyncing) return;
+            isSyncing = true;
+            updateSyncStatus('syncing');
+
+            try {
+                await db.collection('portail').doc(DOC_ID).set({
+                    sites: sites,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                localStorage.setItem('portailSites', JSON.stringify(sites));
+                updateSyncStatus('online');
+            } catch (err) {
+                console.warn('Firebase save error:', err);
+                updateSyncStatus('offline');
+                // Sauvegarde en local quand même
+                localStorage.setItem('portailSites', JSON.stringify(sites));
+            }
+
+            isSyncing = false;
         }
 
-        // ──────────────── ENTRY / EXIT ────────────────
-        function enterHub() {
-            document.getElementById('entryScreen').style.display = 'none';
-            document.getElementById('hubScreen').classList.add('active');
-            visitCount++;
-            saveData();
-            renderHub();
-            showToast('🚀 Bienvenue dans ton hub !');
+        // ──────────────── ÉCOUTE EN TEMPS RÉEL ────────────────
+        function listenToFirebase() {
+            db.collection('portail').doc(DOC_ID).onSnapshot(doc => {
+                if (doc.exists && !isSyncing) {
+                    const data = doc.data();
+                    const newSites = data.sites || [];
+                    const currentStr = JSON.stringify(sites);
+                    const newStr = JSON.stringify(newSites);
+
+                    if (currentStr !== newStr) {
+                        sites = newSites;
+                        localStorage.setItem('portailSites', JSON.stringify(sites));
+                        renderGrid();
+                        showToast('🔄 Synchronisé depuis un autre appareil');
+                    }
+                }
+            }, err => {
+                console.warn('Realtime listener error:', err);
+                updateSyncStatus('offline');
+            });
         }
 
-        function exitHub() {
-            document.getElementById('hubScreen').classList.remove('active');
-            document.getElementById('entryScreen').style.display = 'flex';
-        }
-
-        // ──────────────── RENDER ────────────────
-        function renderHub() {
-            const container = document.getElementById('hubContent');
-            const categories = [...new Set(sites.map(s => s.category))];
-
+        // ──────────────── RENDER GRID ────────────────
+        function renderGrid() {
+            const container = document.getElementById('gridContainer');
             document.getElementById('totalSites').textContent = sites.length;
-            document.getElementById('totalCategories').textContent = categories.length;
-            document.getElementById('totalVisits').textContent = visitCount;
 
             if (sites.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-plus-circle"></i>
                         <p>Aucun site pour le moment. Ajoute ton premier lien !</p>
-                        <button class="enter-btn" style="margin-top:16px;padding:12px 32px;font-size:16px;" onclick="openModal()">
+                        <button class="btn-add" style="margin-top:16px;padding:12px 32px;font-size:16px;" onclick="openModal()">
                             <i class="fas fa-plus"></i> Ajouter un site
                         </button>
+                    </div>
+                    <div class="card-add" onclick="openModal()">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Ajouter</span>
                     </div>
                 `;
                 return;
             }
 
             let html = '';
-            categories.forEach(cat => {
-                const catSites = sites.filter(s => s.category === cat);
-                const icons = {
-                    'Principaux': 'fa-star',
-                    'Outils': 'fa-tools',
-                    'IA': 'fa-brain',
-                    'Réseaux': 'fa-share-alt',
-                    'Travail': 'fa-briefcase',
-                    'Divertissement': 'fa-gamepad',
-                    'Autre': 'fa-folder'
-                };
-                const icon = icons[cat] || 'fa-folder';
-
+            sites.forEach((site, index) => {
+                const imageHtml = site.image ?
+                    `<img src="${site.image}" alt="${site.name}" />` :
+                    `<i class="fas fa-${site.icon || 'globe'}"></i>`;
                 html += `
-                    <div class="category-section">
-                        <div class="cat-title">
-                            <i class="fas ${icon}"></i>
-                            ${cat}
-                            <span class="count">${catSites.length}</span>
+                    <div class="card" onclick="openSite('${index}')" title="${site.name}">
+                        <button class="delete-btn" onclick="event.stopPropagation(); deleteSite(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="image">
+                            ${imageHtml}
                         </div>
-                        <div class="card-grid">
-                `;
-
-                catSites.forEach((site, index) => {
-                    const badgeColors = ['primary', 'green', 'purple', 'pink', 'orange', 'red'];
-                    const badge = badgeColors[index % badgeColors.length];
-                    html += `
-                        <a href="${site.url}" target="_blank" class="card-link" onclick="trackClick('${site.name}')">
-                            <span class="badge ${badge}">${cat}</span>
-                            <div class="icon"><i class="fas ${site.icon || 'fa-globe'}"></i></div>
-                            <div class="name">${site.name}</div>
-                            <div class="desc">${site.url.replace(/^https?:\/\//, '').split('/')[0]}</div>
-                        </a>
-                    `;
-                });
-
-                // Bouton ajouter dans la catégorie
-                html += `
-                        <div class="add-card" onclick="openModal('${cat}')">
-                            <i class="fas fa-plus-circle"></i>
-                            <span>Ajouter</span>
-                        </div>
+                        <div class="name">${site.name}</div>
+                        <div class="url-hint">${site.url.replace(/^https?:\/\//, '').split('/')[0]}</div>
                     </div>
-                </div>
                 `;
             });
+
+            html += `
+                <div class="card-add" onclick="openModal()">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Ajouter</span>
+                </div>
+            `;
 
             container.innerHTML = html;
         }
 
-        // ──────────────── TRACK CLICKS ────────────────
-        function trackClick(name) {
-            console.log('🔗 Clic sur :', name);
-            // On pourrait ajouter des statistiques ici
+        // ──────────────── OPEN SITE ────────────────
+        function openSite(index) {
+            const site = sites[index];
+            if (site && site.url) {
+                window.location.href = site.url;
+            }
+        }
+
+        // ──────────────── DELETE SITE ────────────────
+        async function deleteSite(index) {
+            if (confirm(`Supprimer "${sites[index].name}" ?`)) {
+                sites.splice(index, 1);
+                await saveToFirebase();
+                renderGrid();
+                showToast('🗑️ Site supprimé');
+            }
+        }
+
+        // ──────────────── ENTRY / EXIT HUB ────────────────
+        function enterHub() {
+            document.getElementById('entryScreen').classList.remove('active');
+            document.getElementById('hubScreen').classList.add('active');
+        }
+
+        function exitHub() {
+            document.getElementById('hubScreen').classList.remove('active');
+            document.getElementById('entryScreen').classList.add('active');
         }
 
         // ──────────────── MODAL ────────────────
-        let modalCategory = 'Principaux';
-
-        function openModal(category) {
-            if (category) {
-                modalCategory = category;
-                document.getElementById('modalCategory').value = category;
-            } else {
-                modalCategory = document.getElementById('modalCategory').value;
-            }
+        function openModal() {
             document.getElementById('addModal').classList.add('active');
-            document.getElementById('modalName').focus();
             document.getElementById('modalName').value = '';
             document.getElementById('modalUrl').value = '';
+            imageData = null;
+            document.getElementById('imagePreview').innerHTML = '<i class="fas fa-image"></i>';
+            document.getElementById('modalName').focus();
         }
 
         function closeModal() {
             document.getElementById('addModal').classList.remove('active');
+            imageData = null;
         }
 
-        function addSite() {
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imageData = e.target.result;
+                document.getElementById('imagePreview').innerHTML = `<img src="${imageData}" alt="Aperçu" />`;
+            };
+            reader.readAsDataURL(file);
+            event.target.value = '';
+        }
+
+        function removeImage() {
+            imageData = null;
+            document.getElementById('imagePreview').innerHTML = '<i class="fas fa-image"></i>';
+        }
+
+        async function addSite() {
             const name = document.getElementById('modalName').value.trim();
             let url = document.getElementById('modalUrl').value.trim();
-            const category = document.getElementById('modalCategory').value;
-            const icon = document.getElementById('modalIcon').value;
 
             if (!name) {
                 showToast('❌ Veuillez entrer un nom.');
@@ -879,16 +1283,31 @@
                 return;
             }
 
-            // Ajouter https:// si absent
             if (!url.startsWith('http://') && !url.startsWith('https://')) {
                 url = 'https://' + url;
             }
 
-            sites.push({ name, url, category, icon });
-            saveData();
-            renderHub();
+            sites.push({
+                name: name,
+                url: url,
+                image: imageData || null,
+                icon: 'globe'
+            });
+
+            await saveToFirebase();
             closeModal();
+            renderGrid();
             showToast('✅ Site ajouté : ' + name);
+        }
+
+        // ──────────────── RESET ────────────────
+        async function resetAll() {
+            if (confirm('⚠️ Supprimer tous les sites ?')) {
+                sites = [];
+                await saveToFirebase();
+                renderGrid();
+                showToast('🗑️ Tous les sites ont été supprimés');
+            }
         }
 
         // ──────────────── TOAST ────────────────
@@ -913,9 +1332,13 @@
         });
 
         // ──────────────── INIT ────────────────
-        loadData();
-        console.log('🚀 Portail chargé !');
+        showLoading(true);
+        loadFromFirebase();
+        listenToFirebase();
+
+        console.log('🚀 Portail avec Firebase sync chargé !');
         console.log('📂 Sites :', sites.length);
+        console.log('📡 Synchronisation en temps réel active');
     </script>
 
 </body>
