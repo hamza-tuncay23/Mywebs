@@ -44,7 +44,7 @@
             color: var(--text);
             min-height: 100vh;
             padding: 30px 20px;
-            background-image: url('background-portail.jpg');
+            background-image: url('Background.jpeg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -62,7 +62,49 @@
             z-index: 0;
             pointer-events: none;
         }
-
+        .social-links a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 40px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            font-size: 14px;
+            text-decoration: none;
+            transition: all var(--transition);
+        }
+        
+        .social-links a i {
+            font-size: 18px;
+        }
+        
+        .social-links a span {
+            font-weight: 500;
+        }
+        
+        .social-links a:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            color: var(--primary-light);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+        }
+        
+        .social-links a.instagram:hover {
+            border-color: #e4405f;
+            color: #e4405f;
+        }
+        
+        .social-links a.linkedin:hover {
+            border-color: #0a66c2;
+            color: #0a66c2;
+        }
+        
+        .social-links a.github:hover {
+            border-color: #fff;
+            color: #fff;
+        }
         .container {
             position: relative;
             z-index: 1;
@@ -892,10 +934,7 @@
         <div id="entryScreen">
             <div class="profile-card">
                 <!-- Photo de profil -->
-                <div class="avatar-placeholder" id="avatarContainer">
-                    <i class="fas fa-user"></i>
-                </div>
-
+                <img src="Benim.png" alt="Hamza Margal" class="avatar" id="avatarContainer" />
                 <div class="name">Hamza Margal</div>
                 <div class="title">🚀 Développeur & Créateur</div>
 
@@ -906,19 +945,18 @@
                 </div>
                 <div class="info-item">
                     <i class="fas fa-envelope"></i>
-                    <a href="mailto:hamzamp2026@gmail.com">hamzamp2026@gmail.com</a>
+                    <a href="mailto:hamzamargal2005@gmail.com">hamzamargal2005@gmail.com</a>
                 </div>
 
                 <!-- Réseaux sociaux -->
                 <div class="social-links">
-                    <a href="https://www.instagram.com/hamza_margal/" target="_blank" class="instagram" title="Instagram">
+                    <a href="https://www.instagram.com/ctrlaltstudy/" target="_blank" class="instagram" title="Instagram">
                         <i class="fab fa-instagram"></i>
+                        <span>ctrlaltstudy</span>
                     </a>
-                    <a href="https://www.linkedin.com/in/hamza-margal-4ba9592b4/" target="_blank" class="linkedin" title="LinkedIn">
+                    <a href="https://www.linkedin.com/in/hamza-margal-a6496741b/" target="_blank" class="linkedin" title="LinkedIn">
                         <i class="fab fa-linkedin-in"></i>
-                    </a>
-                    <a href="https://github.com/hamza-tuncay23" target="_blank" class="github" title="GitHub">
-                        <i class="fab fa-github"></i>
+                        <span>Hamza Margal</span>
                     </a>
                 </div>
 
@@ -1013,13 +1051,13 @@
         // ═══════════════════════════════════════════════════
 
         const firebaseConfig = {
-            apiKey: "AIzaSyBeSa90G5b_fl9HoNiDQhUJSyS_4n3x5o0",
-            authDomain: "smart-budget-55f99.firebaseapp.com",
-            projectId: "smart-budget-55f99",
-            storageBucket: "smart-budget-55f99.firebasestorage.app",
-            messagingSenderId: "386991773547",
-            appId: "1:386991773547:web:9e335b919e448f2dcfde2e",
-            measurementId: "G-M6HT37LGFK"
+          apiKey: "AIzaSyDdNwE05oFjttTWX2OyU2OCPC6eqqz1DHI",
+          authDomain: "mywebs-a2c6c.firebaseapp.com",
+          projectId: "mywebs-a2c6c",
+          storageBucket: "mywebs-a2c6c.firebasestorage.app",
+          messagingSenderId: "388879790539",
+          appId: "1:388879790539:web:bfe82a3aaff3a268b3864e",
+          measurementId: "G-CBZNTE6SG5"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -1071,11 +1109,6 @@
                 } else {
                     // Premier lancement : données par défaut
                     sites = [
-                        { name: 'Smart Budget', url: 'https://hamza-tuncay23.github.io/Budget/' },
-                        { name: 'GitHub', url: 'https://github.com/hamza-tuncay23' },
-                        { name: 'ChatGPT', url: 'https://chatgpt.com' },
-                        { name: 'YouTube', url: 'https://youtube.com' },
-                        { name: 'Gmail', url: 'https://gmail.com' },
                     ];
                     await saveToFirebase();
                 }
@@ -1097,11 +1130,6 @@
                     }
                 } else {
                     sites = [
-                        { name: 'Smart Budget', url: 'https://hamza-tuncay23.github.io/Budget/' },
-                        { name: 'GitHub', url: 'https://github.com/hamza-tuncay23' },
-                        { name: 'ChatGPT', url: 'https://chatgpt.com' },
-                        { name: 'YouTube', url: 'https://youtube.com' },
-                        { name: 'Gmail', url: 'https://gmail.com' },
                     ];
                 }
                 updateSyncStatus('offline');
